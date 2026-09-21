@@ -1,0 +1,61 @@
+# Copy to scopes.yaml (gitignored) and fill in real item IDs / layer URLs from
+# your ArcGIS org. This file is the single place that defines what a "scope of
+# work" is made of.
+#
+# Each scope lists one or more surveys (feature layers) that roll up into it.
+# Most surveys have a "purpose" field that already tags the record's scope —
+# if a survey's purpose field only sometimes belongs to this scope, set
+# purpose_values to the matching value(s); leave it empty to count every
+# record from that survey toward this scope.
+
+scopes:
+  - key: inspection
+    label: "Inspection"
+    description: >
+      Tower inspection scope of work — combines the individual field surveys
+      that get merged into one inspection report.
+    surveys:
+      - key: compound_inspection
+        title: "Compound Inspection"
+        item_id: "REPLACE_WITH_ITEM_ID"
+        layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
+        purpose_field: purpose
+        purpose_values: []
+      - key: structure_flight_inspection
+        title: "Structure Flight Inspection"
+        item_id: "REPLACE_WITH_ITEM_ID"
+        layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
+        purpose_field: purpose
+        purpose_values: []
+      - key: guy_facilities_inspection
+        title: "Guy Facilities Inspection v2"
+        item_id: "REPLACE_WITH_ITEM_ID"
+        layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
+        purpose_field: purpose
+        purpose_values: []
+      - key: plumb_and_twist
+        title: "Plumb & Twist"
+        item_id: "REPLACE_WITH_ITEM_ID"
+        layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
+        purpose_field: purpose
+        purpose_values: []
+
+  - key: close_out
+    label: "Close Out"
+    description: "Close-out scope of work — final sign-off survey(s)."
+    surveys:
+      - key: close_out_report
+        title: "Close Out Report"
+        item_id: "REPLACE_WITH_ITEM_ID"
+        layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
+        purpose_field: purpose
+        purpose_values: []
+
+  # Add more scopes as needed, e.g.:
+  # - key: site_walk
+  #   label: "Site Walk"
+  #   surveys:
+  #     - key: site_walk_survey
+  #       title: "Site Walk"
+  #       item_id: "REPLACE_WITH_ITEM_ID"
+  #       layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"

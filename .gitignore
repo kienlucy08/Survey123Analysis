@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+config/settings.yaml
+config/scopes.yaml
+data/cache/*.parquet
+data/cache/*.json
+data/reports/*.pdf
+.DS_Store

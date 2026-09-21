@@ -1,0 +1,9 @@
+requests>=2.31
+pandas>=2.2
+pyyaml>=6.0
+python-dotenv>=1.0
+streamlit>=1.37
+plotly>=5.22
+pyarrow>=16.0
+reportlab>=4.2
+kaleido>=0.2.1

@@ -1,0 +1,15 @@
+# Copy to settings.yaml (gitignored) and adjust.
+# Credentials come from .env (ARCGIS_PORTAL_URL / ARCGIS_USERNAME / ARCGIS_PASSWORD),
+# never from this file.
+
+# How long a cached data pull stays valid before the dashboard re-queries ArcGIS.
+cache_max_age_hours: 6
+
+# Field on every survey layer that holds the submission date, used for
+# time-frame filtering and trend charts.
+default_date_field: CreationDate
+
+# Fields that identify who submitted a record, tried in order (first
+# non-blank value per row wins). Defaults to email, falling back to the
+# ArcGIS login (Creator) if a layer has no email field.
+default_creator_fields: [email, Creator]
