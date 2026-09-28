@@ -45,6 +45,9 @@ def fetch_live() -> pd.DataFrame:
     )
     date_field = settings.get("default_date_field", "CreationDate")
     creator_fields = tuple(settings.get("default_creator_fields", scope.DEFAULT_CREATOR_FIELDS))
+    site_id_field = settings.get("default_site_id_field", scope.DEFAULT_SITE_ID_FIELD)
+    site_name_field = settings.get("default_site_name_field", scope.DEFAULT_SITE_NAME_FIELD)
+    org_field = settings.get("default_org_field", scope.DEFAULT_ORG_FIELD)
 
     raw_by_survey_key: dict[str, pd.DataFrame] = {}
     for _, _, survey in scope.iter_survey_specs(scopes_config):
@@ -52,7 +55,11 @@ def fetch_live() -> pd.DataFrame:
         raw[scope.ATTACHMENT_COLUMN] = _fetch_attachment_counts_column(raw, survey["layer_url"], token_manager.get())
         raw_by_survey_key[survey["key"]] = raw
 
-    return scope.unify(raw_by_survey_key, scopes_config, date_field=date_field, creator_fields=creator_fields)
+    return scope.unify(
+        raw_by_survey_key, scopes_config,
+        date_field=date_field, creator_fields=creator_fields,
+        site_id_field=site_id_field, site_name_field=site_name_field, org_field=org_field,
+    )
 
 
 def _fetch_attachment_counts_column(raw: pd.DataFrame, layer_url: str, token: str) -> pd.Series:
@@ -72,6 +79,18 @@ def fetch_sample() -> pd.DataFrame:
     raw_by_survey_key = sample_data.generate_sample_dataset()
     scopes_config = sample_data.sample_scopes_config()
     return scope.unify(raw_by_survey_key, scopes_config, date_field="CreationDate", creator_fields=("email", "Creator"))
+
+
+def get_scopes_config(use_sample: bool) -> list[dict]:
+    return sample_data.sample_scopes_config() if use_sample else scope.load_scopes_config(SCOPES_PATH)
+
+
+def get_completion_config(use_sample: bool) -> dict[str, list[str]]:
+    return scope.get_completion_config(get_scopes_config(use_sample))
+
+
+def get_family_order(use_sample: bool) -> dict[str, list[str]]:
+    return scope.get_family_order(get_scopes_config(use_sample))
 
 
 def get_unified_data(use_sample: bool, cache_max_age_hours: float | None = None, force_refresh: bool = False) -> pd.DataFrame:

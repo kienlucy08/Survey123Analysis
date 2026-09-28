@@ -13,3 +13,15 @@ default_date_field: CreationDate
 # non-blank value per row wins). Defaults to email, falling back to the
 # ArcGIS login (Creator) if a layer has no email field.
 default_creator_fields: [email, Creator]
+
+# Fields that identify which physical site a record belongs to, used for
+# site-level completion tracking (see scopes.yaml's track_completion).
+# Override per-survey with site_id_field/site_name_field if a layer names
+# these differently.
+default_site_id_field: customer_site_id
+default_site_name_field: customer_site_name
+
+# Field identifying which organization a record belongs to (used for the
+# By Organization breakdown). Override per-survey with org_field if a layer
+# names this differently.
+default_org_field: confirm_org

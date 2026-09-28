@@ -7,4 +7,5 @@ config/scopes.yaml
 data/cache/*.parquet
 data/cache/*.json
 data/reports/*.pdf
+data/deliverables/*.csv
 .DS_Store

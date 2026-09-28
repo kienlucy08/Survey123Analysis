@@ -7,6 +7,24 @@
 # if a survey's purpose field only sometimes belongs to this scope, set
 # purpose_values to the matching value(s); leave it empty to count every
 # record from that survey toward this scope.
+#
+# Optional site-level completion tracking: if a scope is made up of several
+# surveys that together form one deliverable for a site (e.g. Inspection =
+# Compound + Structure + Guy + Plumb & Twist, all for the same tower), set
+# track_completion: true and required_families, then tag each survey with
+# family (which part of the package it is) and completion_role:
+#   - "required" — counts toward required_families; a site missing this
+#     family is flagged incomplete.
+#   - "optional" — still counted in submissions/family breakdowns, but never
+#     makes a site "incomplete" on its own (e.g. a survey that only applies
+#     to some sites, or isn't always done).
+#   - "qa" — a reviewer's second pass, tracked separately as "QA reviewed"
+#     rather than counted as its own submission or family.
+# This needs a site identifier field on each survey — customer_site_id /
+# customer_site_name by default (config/settings.yaml), or override with
+# site_id_field / site_name_field per survey if a layer names it differently.
+# Before relying on this, check the site ID field's data quality — free text
+# fields typed by field techs often have inconsistent values.
 
 scopes:
   - key: inspection
@@ -14,6 +32,8 @@ scopes:
     description: >
       Tower inspection scope of work — combines the individual field surveys
       that get merged into one inspection report.
+    track_completion: true
+    required_families: [compound, structure]  # guy/pnt below are optional
     surveys:
       - key: compound_inspection
         title: "Compound Inspection"
@@ -21,24 +41,32 @@ scopes:
         layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
         purpose_field: purpose
         purpose_values: []
+        family: compound
+        completion_role: required
       - key: structure_flight_inspection
         title: "Structure Flight Inspection"
         item_id: "REPLACE_WITH_ITEM_ID"
         layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
         purpose_field: purpose
         purpose_values: []
+        family: structure
+        completion_role: required
       - key: guy_facilities_inspection
         title: "Guy Facilities Inspection v2"
         item_id: "REPLACE_WITH_ITEM_ID"
         layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
         purpose_field: purpose
         purpose_values: []
+        family: guy
+        completion_role: optional  # only applies to guyed towers
       - key: plumb_and_twist
         title: "Plumb & Twist"
         item_id: "REPLACE_WITH_ITEM_ID"
         layer_url: "REPLACE_WITH_FEATURE_LAYER_URL"
         purpose_field: purpose
         purpose_values: []
+        family: pnt
+        completion_role: optional  # not always done
 
   - key: close_out
     label: "Close Out"

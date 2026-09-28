@@ -24,8 +24,17 @@ SURVEY_PROFILES = {
     "close_out_report": ("Close Out Report", "Close Out", 0.8, 0.020),
 }
 
+# Shared site pool for the Inspection surveys, so the demo shows realistic
+# partial vs. complete site coverage without live ArcGIS data.
+SITE_POOL = [f"SITE-{i:03d}" for i in range(1, 21)]
+INSPECTION_SURVEY_KEYS = {"compound_inspection", "structure_flight_inspection", "guy_facilities_inspection", "plumb_and_twist"}
 
-def _simulate_survey(rng: np.random.Generator, n_days: int, base_rate: float, growth_per_day: float) -> pd.DataFrame:
+# Weighted so one org dominates, like the real org's data.
+ORG_POOL = ["K2Towers", "MurphyTower", "VerticalBridge", "EverestInfrastructure", "TowerCo"]
+ORG_WEIGHTS = [0.4, 0.25, 0.15, 0.12, 0.08]
+
+
+def _simulate_survey(rng: np.random.Generator, n_days: int, base_rate: float, growth_per_day: float, with_site: bool) -> pd.DataFrame:
     rows = []
     object_id = 1
     for day_offset in range(n_days, 0, -1):
@@ -37,15 +46,19 @@ def _simulate_survey(rng: np.random.Generator, n_days: int, base_rate: float, gr
         for _ in range(count):
             creator = rng.choice(CREATORS)
             minute_offset = rng.integers(0, 24 * 60)
-            rows.append(
-                {
-                    "OBJECTID": object_id,
-                    "CreationDate": day + pd.Timedelta(minutes=int(minute_offset)),
-                    "Creator": creator,
-                    "email": f"{creator.replace('.', '')}@example.com",
-                    "attachment_count": max(0, int(rng.normal(loc=10, scale=4))),
-                }
-            )
+            row = {
+                "OBJECTID": object_id,
+                "CreationDate": day + pd.Timedelta(minutes=int(minute_offset)),
+                "Creator": creator,
+                "email": f"{creator.replace('.', '')}@example.com",
+                "attachment_count": max(0, int(rng.normal(loc=10, scale=4))),
+                "confirm_org": rng.choice(ORG_POOL, p=ORG_WEIGHTS),
+            }
+            if with_site:
+                site = rng.choice(SITE_POOL)
+                row["customer_site_id"] = site
+                row["customer_site_name"] = f"{site} Tower"
+            rows.append(row)
             object_id += 1
     return pd.DataFrame(rows)
 
@@ -56,7 +69,7 @@ def generate_sample_dataset(n_days: int = 180, seed: int = 42) -> dict[str, pd.D
     rng = np.random.default_rng(seed)
     dataset = {}
     for key, (title, purpose_value, base_rate, growth_per_day) in SURVEY_PROFILES.items():
-        df = _simulate_survey(rng, n_days, base_rate, growth_per_day)
+        df = _simulate_survey(rng, n_days, base_rate, growth_per_day, with_site=key in INSPECTION_SURVEY_KEYS)
         df["purpose"] = purpose_value
         dataset[key] = df
     return dataset
@@ -69,11 +82,13 @@ def sample_scopes_config() -> list[dict]:
         {
             "key": "inspection",
             "label": "Inspection",
+            "track_completion": True,
+            "required_families": ["compound", "structure"],  # guy/pnt below are optional
             "surveys": [
-                {"key": "compound_inspection", "title": "Compound Inspection", "purpose_field": "purpose", "purpose_values": []},
-                {"key": "structure_flight_inspection", "title": "Structure Flight Inspection", "purpose_field": "purpose", "purpose_values": []},
-                {"key": "guy_facilities_inspection", "title": "Guy Facilities Inspection v2", "purpose_field": "purpose", "purpose_values": []},
-                {"key": "plumb_and_twist", "title": "Plumb & Twist", "purpose_field": "purpose", "purpose_values": []},
+                {"key": "compound_inspection", "title": "Compound Inspection", "purpose_field": "purpose", "purpose_values": [], "family": "compound", "completion_role": "required"},
+                {"key": "structure_flight_inspection", "title": "Structure Flight Inspection", "purpose_field": "purpose", "purpose_values": [], "family": "structure", "completion_role": "required"},
+                {"key": "guy_facilities_inspection", "title": "Guy Facilities Inspection v2", "purpose_field": "purpose", "purpose_values": [], "family": "guy", "completion_role": "optional"},
+                {"key": "plumb_and_twist", "title": "Plumb & Twist", "purpose_field": "purpose", "purpose_values": [], "family": "pnt", "completion_role": "optional"},
             ],
         },
         {
